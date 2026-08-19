@@ -58,25 +58,20 @@ export default function Overview({
   }, [stats]);
 
   return (
-    <div className="p-6 space-y-6">
-      {/* Top Banner with Demo Trigger */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-xl">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
+      {/* Top Banner with Demo Trigger — hidden on mobile since top bar has the button */}
+      <div className="hidden sm:flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 sm:p-5 bg-gradient-to-r from-indigo-950/40 via-slate-900 to-slate-900 border border-indigo-500/20 rounded-xl">
         <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <Shield className="text-indigo-400" size={22} />
-            <h1 className="text-xl font-bold text-white tracking-tight">AegisWAF Control Plane</h1>
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded">
-              Enforcing
-            </span>
-            <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded">
-              Synthetic Benchmark Mode
-            </span>
+          <div className="flex flex-wrap items-center gap-2">
+            <Shield className="text-indigo-400" size={18} />
+            <h1 className="text-base sm:text-xl font-bold text-white tracking-tight">AegisWAF Control Plane</h1>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 rounded">Enforcing</span>
+            <span className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider bg-amber-500/10 text-amber-300 border border-amber-500/30 rounded">Synthetic Mode</span>
           </div>
-          <p className="text-xs text-slate-400">
-            Runtime Security Proxy & Multi-Stage Policy Guard for Autonomous AI Agents (Validated with high-load synthetic traffic)
+          <p className="text-xs text-slate-400 hidden sm:block">
+            Runtime Security Proxy &amp; Multi-Stage Policy Guard for Autonomous AI Agents
           </p>
         </div>
-
         <div className="flex items-center gap-3">
           <button
             onClick={onRunDemo}
@@ -88,50 +83,71 @@ export default function Overview({
             }`}
           >
             <Play size={14} className={demoRunning ? 'animate-spin' : 'fill-white'} />
-            {demoRunning ? 'Simulating Traffic...' : '▶ RUN SECURITY DEMO'}
+            {demoRunning ? 'Simulating...' : '▶ RUN SECURITY DEMO'}
           </button>
         </div>
       </div>
 
-      {/* 5 Primary Metrics */}
-      <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5">
-        <div className="stat-box">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total Interceptions</p>
-          <p className="text-2xl font-bold text-white mt-1">{total.toLocaleString()}</p>
-          <p className="text-[10px] text-slate-500 mt-1 flex items-center gap-1">
-            <Activity size={10} className="text-indigo-400" /> All evaluated calls
+      {/* Mobile-only mini demo banner */}
+      <div className="sm:hidden flex items-center justify-between p-3 bg-indigo-950/40 border border-indigo-500/20 rounded-xl">
+        <div className="flex items-center gap-2">
+          <Shield className="text-indigo-400" size={16} />
+          <div>
+            <p className="text-xs font-bold text-white">AegisWAF Control Plane</p>
+            <p className="text-[10px] text-slate-400">Runtime Security Proxy</p>
+          </div>
+        </div>
+        <button
+          onClick={onRunDemo}
+          disabled={demoRunning}
+          className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition ${
+            demoRunning ? 'bg-indigo-600/40 text-indigo-300' : 'bg-indigo-600 hover:bg-indigo-500 text-white active:scale-95'
+          }`}
+        >
+          <Play size={12} className={demoRunning ? 'animate-spin' : 'fill-white'} />
+          {demoRunning ? '...' : 'RUN DEMO'}
+        </button>
+      </div>
+
+      {/* 5 Primary Metrics — 2 cols on mobile, 5 on large */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 sm:gap-3.5">
+        <div className="stat-box p-3 sm:p-5">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">Total</p>
+          <p className="text-xl sm:text-2xl font-bold text-white mt-0.5">{total.toLocaleString()}</p>
+          <p className="text-[9px] sm:text-[10px] text-slate-500 mt-1 flex items-center gap-1">
+            <Activity size={9} className="text-indigo-400" /> Evaluated
           </p>
         </div>
 
-        <div className="stat-box border-emerald-500/20 bg-emerald-950/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-emerald-400/80">Allowed</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">{counts.ALLOW.toLocaleString()}</p>
-          <p className="text-[10px] text-emerald-500/70 mt-1 flex items-center gap-1">
-            <CheckCircle size={10} /> Passed all policies
+        <div className="stat-box p-3 sm:p-5 border-emerald-500/20 bg-emerald-950/10">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-emerald-400/80">Allowed</p>
+          <p className="text-xl sm:text-2xl font-bold text-emerald-400 mt-0.5">{counts.ALLOW.toLocaleString()}</p>
+          <p className="text-[9px] sm:text-[10px] text-emerald-500/70 mt-1 flex items-center gap-1">
+            <CheckCircle size={9} /> Passed
           </p>
         </div>
 
-        <div className="stat-box border-red-500/20 bg-red-950/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-red-400/80">Blocked (Attacks)</p>
-          <p className="text-2xl font-bold text-red-400 mt-1">{counts.BLOCK.toLocaleString()}</p>
-          <p className="text-[10px] text-red-500/70 mt-1 flex items-center gap-1">
-            <XCircle size={10} /> Policy denied
+        <div className="stat-box p-3 sm:p-5 border-red-500/20 bg-red-950/10">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-red-400/80">Blocked</p>
+          <p className="text-xl sm:text-2xl font-bold text-red-400 mt-0.5">{counts.BLOCK.toLocaleString()}</p>
+          <p className="text-[9px] sm:text-[10px] text-red-500/70 mt-1 flex items-center gap-1">
+            <XCircle size={9} /> Denied
           </p>
         </div>
 
-        <div className="stat-box border-orange-500/20 bg-orange-950/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-orange-400/80">Rate Limited</p>
-          <p className="text-2xl font-bold text-orange-400 mt-1">{counts.RATE_LIMIT.toLocaleString()}</p>
-          <p className="text-[10px] text-orange-500/70 mt-1 flex items-center gap-1">
-            <Clock size={10} /> Throttled by Redis
+        <div className="stat-box p-3 sm:p-5 border-orange-500/20 bg-orange-950/10">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-orange-400/80">Rate Limited</p>
+          <p className="text-xl sm:text-2xl font-bold text-orange-400 mt-0.5">{counts.RATE_LIMIT.toLocaleString()}</p>
+          <p className="text-[9px] sm:text-[10px] text-orange-500/70 mt-1 flex items-center gap-1">
+            <Clock size={9} /> Throttled
           </p>
         </div>
 
-        <div className="stat-box border-amber-500/20 bg-amber-950/10">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-400/80">HITL Escalated</p>
-          <p className="text-2xl font-bold text-amber-400 mt-1">{counts.HITL.toLocaleString()}</p>
-          <p className="text-[10px] text-amber-500/70 mt-1 flex items-center gap-1">
-            <AlertTriangle size={10} /> High-risk transfers
+        <div className="stat-box p-3 sm:p-5 border-amber-500/20 bg-amber-950/10 col-span-2 sm:col-span-1">
+          <p className="text-[10px] sm:text-[11px] font-semibold uppercase tracking-wider text-amber-400/80">HITL</p>
+          <p className="text-xl sm:text-2xl font-bold text-amber-400 mt-0.5">{counts.HITL.toLocaleString()}</p>
+          <p className="text-[9px] sm:text-[10px] text-amber-500/70 mt-1 flex items-center gap-1">
+            <AlertTriangle size={9} /> Escalated
           </p>
         </div>
       </div>
@@ -228,34 +244,27 @@ export default function Overview({
           <span className="text-[11px] text-slate-500 font-mono">Real-time WebSocket Feed</span>
         </div>
 
-        <div className="divide-y divide-white/5 max-h-60 overflow-y-auto">
+        <div className="divide-y divide-white/5 max-h-72 overflow-y-auto">
           {events.length === 0 ? (
             <p className="text-xs text-slate-500 py-6 text-center">
-              No recent tool calls. Click <strong className="text-indigo-400 font-semibold">RUN SECURITY DEMO</strong> above to simulate live traffic.
+              No recent tool calls — click <strong className="text-indigo-400">RUN DEMO</strong> to start.
             </p>
           ) : (
             events.slice(0, 15).map((e, idx) => (
-              <div key={e.payload?.id ?? idx} className="py-2 flex items-center justify-between text-xs">
-                <div className="flex items-center gap-3">
-                  <span className={`badge-${e.type?.toLowerCase()}`}>
-                    {e.type}
-                  </span>
-                  <span className="font-mono text-slate-200 font-semibold">{e.payload.tool}</span>
-                  <span className="text-slate-500 font-mono text-[11px]">agent: {e.payload.agentId || 'cs-agent-01'}</span>
+              <div key={e.payload?.id ?? idx} className="py-2 flex items-start sm:items-center justify-between gap-2 text-xs">
+                <div className="flex flex-wrap items-center gap-1.5 min-w-0">
+                  <span className={`badge-${e.type?.toLowerCase()} shrink-0`}>{e.type}</span>
+                  <span className="font-mono text-slate-200 font-semibold truncate max-w-[90px] sm:max-w-none">{e.payload.tool}</span>
+                  <span className="text-slate-500 font-mono text-[10px] truncate hidden xs:inline">{e.payload.agentId?.split('-')[1] ?? 'agent'}</span>
                 </div>
-                <div className="flex items-center gap-4">
-                  {e.payload.reason && (
-                    <span className="text-slate-400 max-w-xs truncate hidden md:inline">
-                      {e.payload.reason}
-                    </span>
-                  )}
-                  <span className={`font-mono font-bold ${
+                <div className="flex items-center gap-2 shrink-0">
+                  <span className={`font-mono font-bold text-[11px] ${
                     (e.payload.riskScore ?? 0) > 70 ? 'text-red-400' :
                     (e.payload.riskScore ?? 0) > 40 ? 'text-amber-400' : 'text-emerald-400'
                   }`}>
-                    Risk: {e.payload.riskScore}/100
+                    {e.payload.riskScore}/100
                   </span>
-                  <span className="text-slate-500 font-mono text-[11px]">{e.payload.latencyMs}ms</span>
+                  <span className="text-slate-500 font-mono text-[10px] hidden sm:inline">{e.payload.latencyMs}ms</span>
                 </div>
               </div>
             ))
