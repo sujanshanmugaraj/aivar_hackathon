@@ -100,12 +100,24 @@ model ToolCall {
   agent           Agent    @relation(fields: [agentId], references: [id])
   session         Session  @relation(fields: [sessionId], references: [id])
   hitlRequest     HitlRequest?
+  auditEvent      AuditEvent?
 
   @@index([agentId, createdAt])
   @@index([sessionId])
   @@index([decision])
   @@index([tool])
   @@map("tool_calls")
+}
+
+model AuditEvent {
+  id         String   @id @default(uuid())
+  toolCallId String   @unique @map("tool_call_id")
+  eventData  Json     @map("event_data")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  toolCall   ToolCall @relation(fields: [toolCallId], references: [id])
+
+  @@map("audit_events")
 }
 
 enum Decision {
@@ -131,6 +143,7 @@ model HitlRequest {
   reviewedBy  String?    @map("reviewed_by")
   reviewNote  String?    @map("review_note")
   reviewedAt  DateTime?  @map("reviewed_at")
+  resolvedAt  DateTime?  @map("resolved_at")
   createdAt   DateTime   @default(now()) @map("created_at")
 
   toolCall    ToolCall   @relation(fields: [toolCallId], references: [id])
