@@ -1,107 +1,7 @@
-# services:
-#   # ─────────────────────────────────────────────────────────────
-#   # 1. AegisWAF Gateway (Fastify Web Service)
-#   # ─────────────────────────────────────────────────────────────
-#   - type: web
-#     name: aegis-gateway
-#     runtime: docker
-#     dockerfilePath: ./docker/Dockerfile.gateway
-#     dockerContext: .
-#     plan: free
-#     healthCheckPath: /health
-#     envVars:
-#       - key: NODE_ENV
-#         value: production
-#       - key: HOST
-#         value: 0.0.0.0
-#       - key: PORT
-#         value: 3001
-#       - key: DATABASE_URL
-#         fromDatabase:
-#           name: aegis-postgres
-#           property: connectionString
-#       - key: REDIS_URL
-#         fromService:
-#           type: keyvalue
-#           name: aegis-redis
-#           property: connectionString
-#       - key: JWT_SECRET
-#         generateValue: true
-#       - key: ADMIN_API_KEY
-#         generateValue: true
-#       - key: CORS_ORIGIN
-#         value: "*"
-#       - key: DEFAULT_POLICY_PATH
-#         value: ./policies
-#       - key: LOG_LEVEL
-#         value: info
-
-#   # ─────────────────────────────────────────────────────────────
-#   # 2. React Dashboard (Static Site)
-#   # ─────────────────────────────────────────────────────────────
-#   - type: web
-#     name: aegis-dashboard
-#     runtime: static
-#     buildCommand: pnpm --filter dashboard build
-#     staticPublishPath: apps/dashboard/dist
-#     plan: free
-#     envVars:
-#       - key: VITE_GATEWAY_URL
-#         sync: false # Set to https://<aegis-gateway-url>.onrender.com
-#       - key: VITE_WS_URL
-#         sync: false # Set to wss://<aegis-gateway-url>.onrender.com/events
-
-#   # ─────────────────────────────────────────────────────────────
-#   # 3. Autonomous AI Agent (HTTP Web Service)
-#   # ─────────────────────────────────────────────────────────────
-#   - type: web
-#     name: aegis-agent
-#     runtime: docker
-#     dockerfilePath: ./docker/Dockerfile.agent
-#     dockerContext: .
-#     plan: free
-#     healthCheckPath: /health
-#     envVars:
-#       - key: NODE_ENV
-#         value: production
-#       - key: HOST
-#         value: 0.0.0.0
-#       - key: PORT
-#         value: 3002
-#       - key: WAF_GATEWAY_URL
-#         fromService:
-#           type: web
-#           name: aegis-gateway
-#           property: hostport
-#       - key: AGENT_API_KEY
-#         generateValue: true
-#       - key: AGENT_SESSION_ID
-#         value: sess-demo-001
-#       - key: GROQ_API_KEY
-#         sync: false # Enter your Groq API Key securely in Render Dashboard
-
-# # ─────────────────────────────────────────────────────────────
-# # 4. Managed PostgreSQL Database
-# # ─────────────────────────────────────────────────────────────
-# databases:
-#   - name: aegis-postgres
-#     plan: free
-#     databaseName: aegisdb
-#     user: aegis
-
-# # ─────────────────────────────────────────────────────────────
-# # 5. Key Value Store (Valkey / Redis-Compatible)
-# # ─────────────────────────────────────────────────────────────
-
-#   # 5. Key Value Store
-#   - type: keyvalue
-#     name: aegis-redis
-#     plan: free
-#     ipAllowList: []
-
-
 services:
+  # ─────────────────────────────────────────────────────────────
   # 1. AegisWAF Gateway
+  # ─────────────────────────────────────────────────────────────
   - type: web
     name: aegis-gateway
     runtime: docker
@@ -112,44 +12,60 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
+
       - key: HOST
         value: 0.0.0.0
+
       - key: PORT
         value: 3001
+
       - key: DATABASE_URL
         fromDatabase:
           name: aegis-postgres
           property: connectionString
+
       - key: REDIS_URL
         fromService:
           type: keyvalue
           name: aegis-redis
           property: connectionString
+
       - key: JWT_SECRET
         generateValue: true
+
       - key: ADMIN_API_KEY
         generateValue: true
+
       - key: CORS_ORIGIN
         value: "*"
+
       - key: DEFAULT_POLICY_PATH
         value: ./policies
+
       - key: LOG_LEVEL
         value: info
 
-  # 2. Dashboard
+
+  # ─────────────────────────────────────────────────────────────
+  # 2. React Dashboard
+  # ─────────────────────────────────────────────────────────────
   - type: web
     name: aegis-dashboard
     runtime: static
     buildCommand: pnpm --filter dashboard build
     staticPublishPath: apps/dashboard/dist
-    plan: free
+
     envVars:
       - key: VITE_GATEWAY_URL
         sync: false
+
       - key: VITE_WS_URL
         sync: false
 
-  # 3. Agent
+
+  # ─────────────────────────────────────────────────────────────
+  # 3. Autonomous AI Agent
+  # ─────────────────────────────────────────────────────────────
   - type: web
     name: aegis-agent
     runtime: docker
@@ -157,33 +73,46 @@ services:
     dockerContext: .
     plan: free
     healthCheckPath: /health
+
     envVars:
       - key: NODE_ENV
         value: production
+
       - key: HOST
         value: 0.0.0.0
+
       - key: PORT
         value: 3002
+
       - key: WAF_GATEWAY_URL
         fromService:
           type: web
           name: aegis-gateway
           property: hostport
+
       - key: AGENT_API_KEY
         generateValue: true
+
       - key: AGENT_SESSION_ID
         value: sess-demo-001
+
       - key: GROQ_API_KEY
         sync: false
 
+
+  # ─────────────────────────────────────────────────────────────
   # 4. Redis / Valkey
+  # ─────────────────────────────────────────────────────────────
   - type: keyvalue
     name: aegis-redis
     plan: free
     ipAllowList: []
 
+
+# ─────────────────────────────────────────────────────────────
+# 5. PostgreSQL
+# ─────────────────────────────────────────────────────────────
 databases:
-  # 5. PostgreSQL
   - name: aegis-postgres
     plan: free
     databaseName: aegisdb
