@@ -1,6 +1,9 @@
-FROM node:20-alpine
+FROM node:20-slim
 
 RUN npm install -g pnpm
+
+# Install openssl for Prisma engine compatibility
+RUN apt-get update -y && apt-get install -y openssl curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -12,8 +15,6 @@ COPY apps/gateway ./apps/gateway
 RUN pnpm install --frozen-lockfile
 RUN pnpm --filter gateway exec prisma generate
 RUN pnpm --filter gateway build
-
-RUN apk add --no-cache curl
 
 EXPOSE 3001
 
