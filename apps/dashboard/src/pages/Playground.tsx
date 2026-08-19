@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import axios from 'axios';
 import {
   Send, Bot, Shield, CheckCircle, XCircle, AlertTriangle, Clock,
   ArrowRight, ShieldCheck, RefreshCw, Zap, Sparkles, Terminal, Layers, User,
-  CheckCheck, Ban, Database, Cpu
+  CheckCheck, Ban, Database, Cpu, Brain, ChevronRight
 } from 'lucide-react';
 
 interface PlaygroundResult {
@@ -62,6 +62,15 @@ const PRESET_PROMPTS = [
   },
 ];
 
+interface NlpIntent {
+  agentId: string;
+  tool: string;
+  parameters: Record<string, unknown>;
+  confidence: number;
+  intent: string;
+  reasoning: string;
+}
+
 export default function AgentPlayground() {
   const [selectedAgent, setSelectedAgent] = useState('agent-customer-support-01');
   const [promptText, setPromptText] = useState('Get customer C101 profile');
@@ -70,12 +79,43 @@ export default function AgentPlayground() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<PlaygroundResult | null>(null);
   const [hitlResolving, setHitlResolving] = useState<string | null>(null);
+  const [nlpParsing, setNlpParsing] = useState(false);
+  const [nlpIntent, setNlpIntent] = useState<NlpIntent | null>(null);
+  const nlpTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const parseNlpIntent = useCallback(async (text: string) => {
+    if (!text.trim() || text.length < 5) return;
+    setNlpParsing(true);
+    setNlpIntent(null);
+    try {
+      const res = await axios.post('/api/system/nlp-parse', { prompt: text });
+      const intent: NlpIntent = res.data;
+      setNlpIntent(intent);
+      // Auto-fill tool + params + agent from parsed intent
+      setSelectedAgent(intent.agentId);
+      setSelectedTool(intent.tool);
+      setParamsJson(JSON.stringify(intent.parameters, null, 2));
+    } catch {
+      // Silently ignore — user can still manually select
+    } finally {
+      setNlpParsing(false);
+    }
+  }, []);
+
+  const handlePromptChange = (text: string) => {
+    setPromptText(text);
+    setNlpIntent(null);
+    if (nlpTimer.current) clearTimeout(nlpTimer.current);
+    // Debounce 600ms after user stops typing
+    nlpTimer.current = setTimeout(() => parseNlpIntent(text), 600);
+  };
 
   const applyPreset = (preset: typeof PRESET_PROMPTS[0]) => {
     setPromptText(preset.prompt);
     setSelectedAgent(preset.agent);
     setSelectedTool(preset.tool);
     setParamsJson(JSON.stringify(preset.params, null, 2));
+    setNlpIntent(null);
     setResult(null);
   };
 
@@ -197,7 +237,7 @@ export default function AgentPlayground() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
@@ -256,21 +296,53 @@ export default function AgentPlayground() {
             </select>
           </div>
 
+          {/* Natural Language Prompt Input */}
           <div className="space-y-1.5">
-            <label className="text-xs font-semibold text-slate-300">User Request:</label>
+            <label className="text-xs font-semibold text-slate-300 flex items-center gap-2">
+              User Request:
+              {nlpParsing && (
+                <span className="flex items-center gap-1 text-indigo-400 text-[10px] font-normal animate-pulse">
+                  <Brain size={11} /> AI parsing intent...
+                </span>
+              )}
+              {nlpIntent && !nlpParsing && (
+                <span className="flex items-center gap-1 text-emerald-400 text-[10px] font-normal">
+                  <CheckCircle size={11} /> Intent detected ({Math.round(nlpIntent.confidence * 100)}% confidence)
+                </span>
+              )}
+            </label>
             <input
               type="text"
               value={promptText}
-              onChange={(e) => setPromptText(e.target.value)}
+              onChange={(e) => handlePromptChange(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && !loading && handleSend()}
               className="w-full bg-black/40 border border-white/10 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-indigo-500"
-              placeholder="e.g. Get customer C101 profile"
+              placeholder="e.g. Transfer $5,000 to John  |  Search users where name is ' OR 1=1  |  Get profile for C999"
             />
+            {/* NLP Reasoning Box */}
+            {nlpIntent && !nlpParsing && (
+              <div className="bg-indigo-950/50 border border-indigo-500/30 rounded-lg p-2.5 space-y-1">
+                <p className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider flex items-center gap-1">
+                  <Brain size={10} /> Agent Intent Reasoning
+                </p>
+                <p className="text-[11px] text-slate-300">{nlpIntent.reasoning}</p>
+                <div className="flex items-center gap-3 text-[10px] font-mono">
+                  <span className="text-slate-500">intent:</span>
+                  <span className="text-indigo-300">{nlpIntent.intent}</span>
+                  <span className="text-slate-500">agent:</span>
+                  <span className="text-amber-300">{nlpIntent.agentId.split('-')[1]}-agent</span>
+                  <span className="text-slate-500">tool:</span>
+                  <span className="text-emerald-300">{nlpIntent.tool}</span>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="border-t border-white/5 pt-3 space-y-3">
             <h4 className="text-xs font-bold text-slate-300 flex items-center gap-1.5">
               <Bot size={15} className="text-indigo-400" />
               2. Agent Intent Reasoning & Tool Selection
+              {nlpIntent && <span className="text-[10px] font-normal text-emerald-400/80 ml-1">(auto-filled from NLP)</span>}
             </h4>
 
             <div className="grid grid-cols-2 gap-3">
@@ -300,7 +372,10 @@ export default function AgentPlayground() {
             </div>
 
             <div className="space-y-1">
-              <label className="text-[11px] text-slate-400">Tool Parameters (JSON):</label>
+              <label className="text-[11px] text-slate-400 flex items-center gap-1.5">
+                Tool Parameters (JSON):
+                {nlpIntent && <span className="text-indigo-400/70 text-[10px]">(auto-extracted)</span>}
+              </label>
               <textarea
                 rows={4}
                 value={paramsJson}
@@ -312,11 +387,11 @@ export default function AgentPlayground() {
 
           <button
             onClick={handleSend}
-            disabled={loading}
+            disabled={loading || nlpParsing}
             className="w-full py-2.5 px-4 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-2 transition shadow-lg shadow-indigo-600/30 disabled:opacity-50 active:scale-95"
           >
-            {loading ? <RefreshCw size={14} className="animate-spin" /> : <Send size={14} />}
-            {loading ? 'Evaluating 7-Layer Defense...' : 'SEND REQUEST TO AGENT & WAF'}
+            {loading ? <RefreshCw size={14} className="animate-spin" /> : nlpParsing ? <Brain size={14} className="animate-pulse" /> : <Send size={14} />}
+            {loading ? 'Evaluating 7-Layer Defense...' : nlpParsing ? 'Parsing Intent...' : 'SEND REQUEST TO AGENT & WAF'}
           </button>
         </div>
 
