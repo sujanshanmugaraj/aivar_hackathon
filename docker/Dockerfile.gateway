@@ -24,7 +24,7 @@ COPY --from=builder /app/apps/gateway/dist ./dist
 COPY --from=builder /app/apps/gateway/node_modules ./node_modules
 COPY --from=builder /app/apps/gateway/prisma ./prisma
 COPY --from=builder /app/apps/gateway/policies ./policies
-COPY apps/gateway/package.json ./
+COPY apps/gateway/src/db ./src/db
 
 RUN apk add --no-cache curl
 
@@ -32,4 +32,4 @@ EXPOSE 3001
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
   CMD curl -f http://localhost:3001/health || exit 1
 
-CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]
+CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/db/seed.js || true && node dist/server.js"]
