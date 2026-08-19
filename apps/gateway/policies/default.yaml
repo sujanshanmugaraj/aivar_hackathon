@@ -1,0 +1,108 @@
+policy:
+  id: customer-agent-policy-v1
+  agent: customer-support-agent
+  version: 5
+  shadow_mode: false   # Set to true to log-would-block without actually blocking
+
+  # ─────────────────────────────────────────────
+  # Rate Limits — per-tool call budget per window
+  # ─────────────────────────────────────────────
+  rate_limits:
+    get_customer:
+      requests: 20
+      window_seconds: 60
+    update_customer:
+      requests: 10
+      window_seconds: 60
+    delete_customer:
+      requests: 2
+      window_seconds: 60
+    search_customer:
+      requests: 30
+      window_seconds: 60
+    send_email:
+      requests: 50
+      window_seconds: 60
+    transfer_money:
+      requests: 5
+      window_seconds: 3600
+
+  # ─────────────────────────────────────────────
+  # Parameter Rules — blocklists, size limits
+  # Use "*" as a wildcard that applies to all tools
+  # ─────────────────────────────────────────────
+  parameter_rules:
+    "*":
+      max_length: 1000
+      blocklist_patterns:
+        - "DROP"
+        - "DELETE *"
+        - "TRUNCATE"
+        - "'; --"
+        - "../"
+        - "..\\"
+        - "<script"
+        - "</script"
+        - "javascript:"
+        - "UNION SELECT"
+        - "' OR '1'='1"
+        - "' OR 1=1"
+        - "rm -rf"
+        - "/etc/passwd"
+        - "cmd.exe"
+        - "/bin/sh"
+        - "/bin/bash"
+        - "powershell"
+        - "exec("
+        - "eval("
+        - "system("
+    transfer_money:
+      max_amount: 50000
+
+  # ─────────────────────────────────────────────
+  # Data Scope — which customer IDs can be accessed
+  # session_binding: customerId must match session
+  # open: no scope enforcement
+  # ─────────────────────────────────────────────
+  data_scope:
+    strategy: session_binding
+    allowed_fields:
+      - customer_id
+      - customerId
+
+  # ─────────────────────────────────────────────
+  # Sequence Rules — Tool B requires Tool A first
+  # ─────────────────────────────────────────────
+  sequence_rules:
+    update_customer:
+      requires:
+        - get_customer
+    delete_customer:
+      requires:
+        - get_customer
+    transfer_money:
+      requires:
+        - get_customer
+
+  # ─────────────────────────────────────────────
+  # Risk Weights — base score per tool (0-100)
+  # Higher = more sensitive action
+  # ─────────────────────────────────────────────
+  risk_weights:
+    search_customer: 10
+    get_customer: 8
+    update_customer: 30
+    send_email: 25
+    delete_customer: 70
+    transfer_money: 75
+
+  # ─────────────────────────────────────────────
+  # Decision Thresholds — score ranges
+  # 0-50: ALLOW (safe)
+  # 51-90: HITL (requires human approval)
+  # 91-100: BLOCK (automatic policy denial)
+  # ─────────────────────────────────────────────
+  decision_thresholds:
+    allow: [0, 50]
+    hitl: [51, 90]
+    block: [91, 100]

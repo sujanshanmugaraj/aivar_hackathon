@@ -1,0 +1,35 @@
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
+
+# ── Dependencies ──────────────────────────────
+FROM base AS deps
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY apps/gateway/package.json ./apps/gateway/
+RUN pnpm install --frozen-lockfile
+
+# ── Build ────────────────────────────────────
+FROM deps AS builder
+WORKDIR /app
+COPY apps/gateway ./apps/gateway
+RUN pnpm --filter gateway exec prisma generate
+RUN pnpm --filter gateway build
+
+# ── Production image ──────────────────────────
+FROM node:20-alpine AS runner
+RUN npm install -g pnpm
+WORKDIR /app
+
+COPY --from=builder /app/apps/gateway/dist ./dist
+COPY --from=builder /app/apps/gateway/node_modules ./node_modules
+COPY --from=builder /app/apps/gateway/prisma ./prisma
+COPY --from=builder /app/apps/gateway/policies ./policies
+COPY apps/gateway/package.json ./
+
+RUN apk add --no-cache curl
+
+EXPOSE 3001
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD curl -f http://localhost:3001/health || exit 1
+
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/server.js"]

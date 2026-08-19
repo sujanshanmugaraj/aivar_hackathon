@@ -1,0 +1,15 @@
+# Railway deployment configuration for AegisWAF Gateway
+[build]
+builder = "DOCKERFILE"
+dockerfilePath = "docker/Dockerfile.gateway"
+buildContext = "."
+
+[deploy]
+startCommand = "node dist/server.js"
+healthcheckPath = "/health"
+healthcheckTimeout = 30
+restartPolicyType = "ON_FAILURE"
+restartPolicyMaxRetries = 3
+
+[[services]]
+name = "gateway"

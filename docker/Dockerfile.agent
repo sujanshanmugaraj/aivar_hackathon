@@ -1,0 +1,12 @@
+FROM node:20-alpine AS base
+RUN npm install -g pnpm
+
+WORKDIR /app
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY apps/agent/package.json ./apps/agent/
+RUN pnpm install --frozen-lockfile
+
+COPY apps/agent ./apps/agent
+
+EXPOSE 3002
+CMD ["pnpm", "--filter", "agent", "start"]

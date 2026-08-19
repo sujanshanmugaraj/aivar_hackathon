@@ -1,0 +1,34 @@
+{
+  "name": "aegis-waf",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AegisWAF — Runtime Security Gateway for AI Agents (PS-5.1)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n gateway,agent,dashboard -c cyan,yellow,magenta \"pnpm --filter gateway dev\" \"pnpm --filter agent dev\" \"pnpm --filter dashboard dev\"",
+    "build": "pnpm -r build",
+    "test": "pnpm --filter gateway test:comprehensive",
+    "test:comprehensive": "pnpm --filter gateway test:comprehensive",
+    "test:penetration": "pnpm --filter gateway test:penetration",
+    "test:attack": "pnpm --filter agent test:attack",
+    "test:load": "pnpm --filter gateway test:load",
+    "test:security": "pnpm --filter gateway test:security",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "docker:logs": "docker compose logs -f",
+    "db:migrate": "pnpm --filter gateway db:migrate",
+    "db:studio": "pnpm --filter gateway db:studio",
+    "lint": "pnpm -r lint"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "typescript": "^5.4.5"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=9.0.0"
+  }
+}

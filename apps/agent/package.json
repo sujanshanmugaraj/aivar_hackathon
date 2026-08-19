@@ -1,0 +1,32 @@
+{
+  "name": "agent",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AegisWAF Demo AI Agent — LangGraph.js + Groq Llama 3",
+  "scripts": {
+    "dev": "tsx src/index.ts",
+    "build": "tsx --eval \"console.log('Agent ready for execution via tsx')\"",
+    "start": "tsx src/index.ts",
+    "test": "jest --passWithNoTests",
+    "test:attack": "tsx src/simulations/attack-simulator.ts",
+    "test:normal": "tsx src/simulations/normal-flow.ts"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.1",
+    "@langchain/groq": "^0.1.0",
+    "@langchain/langgraph": "^0.2.0",
+    "@langchain/openai": "^1.5.8",
+    "axios": "^1.7.2",
+    "dotenv": "^16.4.5",
+    "uuid": "^10.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.9",
+    "@types/uuid": "^10.0.0",
+    "jest": "^29.7.0",
+    "ts-jest": "^29.1.5",
+    "tsx": "^4.16.0",
+    "typescript": "^5.4.5"
+  }
+}

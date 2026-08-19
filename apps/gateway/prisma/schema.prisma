@@ -1,0 +1,175 @@
+// This is your Prisma schema file for AegisWAF
+// Learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ─────────────────────────────────────────────
+// Agent Registry
+// ─────────────────────────────────────────────
+model Agent {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  apiKey      String   @unique @map("api_key") // hashed
+  active      Boolean  @default(true)
+  role        String   @default("agent") // agent | admin | analyst
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  sessions    Session[]
+  toolCalls   ToolCall[]
+  policies    Policy[]
+  hitlRequests HitlRequest[]
+
+  @@map("agents")
+}
+
+// ─────────────────────────────────────────────
+// Session (per agent invocation)
+// ─────────────────────────────────────────────
+model Session {
+  id             String   @id @default(uuid())
+  agentId        String   @map("agent_id")
+  customerId     String?  @map("customer_id") // data scope binding
+  metadata       Json     @default("{}")
+  active         Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+  expiresAt      DateTime @map("expires_at")
+
+  agent          Agent    @relation(fields: [agentId], references: [id])
+  toolCalls      ToolCall[]
+
+  @@index([agentId])
+  @@map("sessions")
+}
+
+// ─────────────────────────────────────────────
+// Policy (YAML-backed, versioned)
+// ─────────────────────────────────────────────
+model Policy {
+  id           String          @id @default(uuid())
+  agentId      String          @map("agent_id")
+  name         String
+  version      Int             @default(1)
+  content      Json            // parsed YAML policy
+  shadowMode   Boolean         @default(false) @map("shadow_mode")
+  active       Boolean         @default(true)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  agent        Agent           @relation(fields: [agentId], references: [id])
+  versions     PolicyVersion[]
+
+  @@index([agentId])
+  @@map("policies")
+}
+
+model PolicyVersion {
+  id        String   @id @default(uuid())
+  policyId  String   @map("policy_id")
+  version   Int
+  content   Json
+  createdAt DateTime @default(now()) @map("created_at")
+  createdBy String   @map("created_by")
+
+  policy    Policy   @relation(fields: [policyId], references: [id])
+
+  @@index([policyId])
+  @@map("policy_versions")
+}
+
+// ─────────────────────────────────────────────
+// Tool Call (every intercepted invocation)
+// ─────────────────────────────────────────────
+model ToolCall {
+  id              String          @id @default(uuid())
+  agentId         String          @map("agent_id")
+  sessionId       String          @map("session_id")
+  tool            String
+  rawParameters   Json            @map("raw_parameters")
+  sanitizedParams Json            @map("sanitized_params")
+  riskScore       Int             @map("risk_score")
+  decision        Decision
+  shadowMode      Boolean         @default(false) @map("shadow_mode")
+  reason          String?
+  rulesEvaluated  String[]        @map("rules_evaluated")
+  matchedRules    String[]        @map("matched_rules")
+  latencyMs       Int             @map("latency_ms")
+  createdAt       DateTime        @default(now()) @map("created_at")
+
+  agent           Agent           @relation(fields: [agentId], references: [id])
+  session         Session         @relation(fields: [sessionId], references: [id])
+  hitlRequest     HitlRequest?
+  auditEvent      AuditEvent?
+
+  @@index([agentId])
+  @@index([sessionId])
+  @@index([decision])
+  @@index([createdAt])
+  @@map("tool_calls")
+}
+
+// ─────────────────────────────────────────────
+// Audit Event (immutable log)
+// ─────────────────────────────────────────────
+model AuditEvent {
+  id          String   @id @default(uuid())
+  toolCallId  String   @unique @map("tool_call_id")
+  eventData   Json     @map("event_data") // full snapshot, immutable
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  toolCall    ToolCall @relation(fields: [toolCallId], references: [id])
+
+  @@index([createdAt])
+  @@map("audit_events")
+}
+
+// ─────────────────────────────────────────────
+// HITL Request
+// ─────────────────────────────────────────────
+model HitlRequest {
+  id          String      @id @default(uuid())
+  toolCallId  String      @unique @map("tool_call_id")
+  agentId     String      @map("agent_id")
+  status      HitlStatus  @default(PENDING)
+  riskScore   Int         @map("risk_score")
+  tool        String
+  parameters  Json
+  reason      String?
+  reviewedBy  String?     @map("reviewed_by")
+  reviewNote  String?     @map("review_note")
+  createdAt   DateTime    @default(now()) @map("created_at")
+  resolvedAt  DateTime?   @map("resolved_at")
+
+  toolCall    ToolCall    @relation(fields: [toolCallId], references: [id])
+  agent       Agent       @relation(fields: [agentId], references: [id])
+
+  @@index([status])
+  @@index([agentId])
+  @@map("hitl_requests")
+}
+
+// ─────────────────────────────────────────────
+// Enums
+// ─────────────────────────────────────────────
+enum Decision {
+  ALLOW
+  BLOCK
+  SHADOW_BLOCK
+  RATE_LIMIT
+  HITL
+}
+
+enum HitlStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}

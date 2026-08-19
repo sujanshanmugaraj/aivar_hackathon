@@ -1,0 +1,118 @@
+services:
+  # ─────────────────────────────────────────────
+  # PostgreSQL — persistent audit & policy store
+  # ─────────────────────────────────────────────
+  postgres:
+    image: postgres:16-alpine
+    container_name: aegis-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: aegis
+      POSTGRES_PASSWORD: aegis_dev_password
+      POSTGRES_DB: aegisdb
+      POSTGRES_HOST_AUTH_METHOD: md5
+      POSTGRES_INITDB_ARGS: "--auth-host=md5"
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aegis -d aegisdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # Redis — rate limiting, session state, pub/sub
+  # ─────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: aegis-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ─────────────────────────────────────────────
+  # AegisWAF Gateway
+  # ─────────────────────────────────────────────
+  gateway:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.gateway
+    container_name: aegis-gateway
+    restart: unless-stopped
+    ports:
+      - "3001:3001"
+    environment:
+      NODE_ENV: development
+      PORT: 3001
+      HOST: 0.0.0.0
+      DATABASE_URL: postgresql://aegis:aegis_dev_password@postgres:5432/aegisdb
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: dev-jwt-secret-minimum-32-chars-long
+      DEFAULT_POLICY_PATH: /app/policies
+      LOG_LEVEL: info
+      CORS_ORIGIN: "http://localhost:5173"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # ─────────────────────────────────────────────
+  # AI Agent Service
+  # ─────────────────────────────────────────────
+  agent:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.agent
+    container_name: aegis-agent
+    restart: unless-stopped
+    ports:
+      - "3002:3002"
+    environment:
+      NODE_ENV: development
+      PORT: 3002
+      WAF_GATEWAY_URL: http://gateway:3001
+      AGENT_API_KEY: cs-agent-key-dev-001
+      AGENT_SESSION_ID: sess-demo-001
+      GROQ_API_KEY: ${GROQ_API_KEY}
+    depends_on:
+      gateway:
+        condition: service_healthy
+
+  # ─────────────────────────────────────────────
+  # React Dashboard
+  # ─────────────────────────────────────────────
+  dashboard:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dashboard
+    container_name: aegis-dashboard
+    restart: unless-stopped
+    ports:
+      - "5173:80"
+    environment:
+      VITE_GATEWAY_URL: http://localhost:3001
+      VITE_WS_URL: ws://localhost:3001/events
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  default:
+    name: aegis-network
