@@ -1,35 +1,94 @@
+# FROM node:20-alpine AS base
+# RUN npm install -g pnpm
+
+# # ── Dependencies ──────────────────────────────
+# FROM base AS deps
+# WORKDIR /app
+# COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+# COPY apps/gateway/package.json ./apps/gateway/
+# RUN pnpm install --frozen-lockfile
+
+# # ── Build ────────────────────────────────────
+# FROM deps AS builder
+# WORKDIR /app
+# COPY apps/gateway ./apps/gateway
+# RUN pnpm --filter gateway exec prisma generate
+# RUN pnpm --filter gateway build
+
+# # ── Production image ──────────────────────────
+# FROM node:20-alpine AS runner
+# RUN npm install -g pnpm
+# WORKDIR /app
+
+# COPY --from=builder /app/apps/gateway/dist ./dist
+# COPY --from=builder /app/apps/gateway/node_modules ./node_modules
+# COPY --from=builder /app/apps/gateway/prisma ./prisma
+# COPY --from=builder /app/apps/gateway/policies ./policies
+# COPY apps/gateway/src/db ./src/db
+
+# RUN apk add --no-cache curl
+
+# EXPOSE 3001
+# HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+#   CMD curl -f http://localhost:3001/health || exit 1
+
+# CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/db/seed.js || true && node dist/server.js"]
+
+
+
 FROM node:20-alpine AS base
 RUN npm install -g pnpm
 
 # ── Dependencies ──────────────────────────────
 FROM base AS deps
 WORKDIR /app
+
 COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
 COPY apps/gateway/package.json ./apps/gateway/
+
 RUN pnpm install --frozen-lockfile
 
-# ── Build ────────────────────────────────────
+# ── Build ─────────────────────────────────────
 FROM deps AS builder
 WORKDIR /app
+
 COPY apps/gateway ./apps/gateway
+
 RUN pnpm --filter gateway exec prisma generate
 RUN pnpm --filter gateway build
 
 # ── Production image ──────────────────────────
 FROM node:20-alpine AS runner
+
 RUN npm install -g pnpm
+
 WORKDIR /app
 
+# Copy workspace metadata
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml* ./
+COPY apps/gateway/package.json ./apps/gateway/
+
+# Install dependencies in the final image
+RUN pnpm install --frozen-lockfile --prod
+
+# Copy compiled application
 COPY --from=builder /app/apps/gateway/dist ./dist
-COPY --from=builder /app/apps/gateway/node_modules ./node_modules
+
+# Copy Prisma schema
 COPY --from=builder /app/apps/gateway/prisma ./prisma
+
+# Copy policies
 COPY --from=builder /app/apps/gateway/policies ./policies
-COPY apps/gateway/src/db ./src/db
+
+# Copy generated Prisma client if required
+COPY --from=builder /app/apps/gateway/node_modules/.prisma ./apps/gateway/node_modules/.prisma
+COPY --from=builder /app/apps/gateway/node_modules/@prisma ./apps/gateway/node_modules/@prisma
 
 RUN apk add --no-cache curl
 
 EXPOSE 3001
-HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
-  CMD curl -f http://localhost:3001/health || exit 1
 
-CMD ["sh", "-c", "npx prisma db push --skip-generate && node dist/db/seed.js || true && node dist/server.js"]
+HEALTHCHECK --interval=30s --timeout=10s --retries=3 \
+  CMD curl -f http://localhost:${PORT:-3001}/health || exit 1
+
+CMD ["sh", "-c", "pnpm --filter gateway exec prisma db push --skip-generate && node dist/db/seed.js || true; node dist/server.js"]
