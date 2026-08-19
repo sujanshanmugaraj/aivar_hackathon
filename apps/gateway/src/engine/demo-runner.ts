@@ -93,11 +93,47 @@ export async function runSecurityDemoSimulation(): Promise<{ executed: number; s
 
   logger.info('Starting in-process security demo simulation', { sessionId });
 
+  // Ensure agents exist in database
+  await prisma.agent.upsert({
+    where: { id: 'agent-customer-support-01' },
+    update: {},
+    create: {
+      id: 'agent-customer-support-01',
+      name: 'customer-support-agent',
+      description: 'Customer Support AI Agent',
+      apiKey: 'cs-agent-hash',
+      role: 'agent',
+    },
+  });
+
+  await prisma.agent.upsert({
+    where: { id: 'agent-finance-01' },
+    update: {},
+    create: {
+      id: 'agent-finance-01',
+      name: 'finance-agent',
+      description: 'Finance Operations AI Agent',
+      apiKey: 'finance-agent-hash',
+      role: 'agent',
+    },
+  });
+
   for (const scenario of DEMO_SCENARIOS) {
     const requestId = uuidv4();
     labels.push(scenario.label);
 
     try {
+      // Ensure session exists
+      await prisma.session.upsert({
+        where: { id: sessionId },
+        update: { lastActiveAt: new Date() },
+        create: {
+          id: sessionId,
+          agentId: scenario.agentId,
+          customerId: scenario.customerId ?? 'C101',
+        },
+      });
+
       // Run evaluation
       const result = await intercept(
         {
@@ -165,8 +201,8 @@ export async function runSecurityDemoSimulation(): Promise<{ executed: number; s
       }
 
       count++;
-      // Brief delay between events for smooth visual ingestion in UI
-      await new Promise((r) => setTimeout(r, 150));
+      // Delay between events for smooth visual animation in dashboard
+      await new Promise((r) => setTimeout(r, 200));
     } catch (err: any) {
       logger.error('Error executing demo scenario item', { label: scenario.label, error: err.message });
     }
