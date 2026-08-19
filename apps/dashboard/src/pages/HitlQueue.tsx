@@ -31,7 +31,11 @@ export default function HitlQueue() {
   const resolve = async (id: string, action: 'approve' | 'reject') => {
     setResolving(id);
     try {
-      await axios.post(`/api/hitl/${id}/${action}`, { note: `Manually ${action}d from Dashboard` });
+      await axios.post(
+        `/api/hitl/${id}/${action}`,
+        { note: `Manually ${action}d from Dashboard` },
+        { headers: { Authorization: 'Bearer sec-officer-key-dev-001' } }
+      );
       await fetchQueue();
     } catch (e) {
       console.error(e);
@@ -43,7 +47,11 @@ export default function HitlQueue() {
   const clearAll = async (action: 'APPROVE' | 'REJECT') => {
     setLoading(true);
     try {
-      await axios.post('/api/hitl/clear-all', { action });
+      await axios.post(
+        '/api/hitl/clear-all',
+        { action },
+        { headers: { Authorization: 'Bearer sec-officer-key-dev-001' } }
+      );
       await fetchQueue();
     } catch (e) {
       console.error(e);
