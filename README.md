@@ -1,10 +1,10 @@
-# 🛡️ AegisWAF (PS-5.1) — Zero-Trust Runtime Control Plane & Policy Guard for Autonomous AI Agents
+# 🛡️ AegisWAF (PS-5.1) — Zero-Trust Runtime Control Plane for Autonomous AI Agents
 
 <div align="center">
 
 ### **Author:** Sujan S  
 **Roll Number:** 22PD35  
-**Course:** MSc Data Science — PSG College of Technology  
+**Course:** Integrated M.Sc Cybersecurity — PSG College of Technology  
 
 [![Production Status](https://img.shields.io/badge/System%20Status-OPERATIONAL-emerald?style=for-the-badge&logo=render)](https://aegis-dashboard-u2x2.onrender.com)
 [![WebSocket](https://img.shields.io/badge/Event%20Stream-LIVE%20WS-indigo?style=for-the-badge&logo=socketdotio)](https://aegis-dashboard-u2x2.onrender.com)
@@ -12,20 +12,83 @@
 [![Security Layers](https://img.shields.io/badge/Defense%20Pipeline-7%20Layers-blue?style=for-the-badge&logo=shield)](https://aegis-dashboard-u2x2.onrender.com/playground)
 [![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
 
-**A high-performance, deterministic 7-Layer Web Application Firewall (WAF) and Governance Control Plane positioned between autonomous AI agents and enterprise databases/APIs.**
-
 </div>
+
+> **Elevator Pitch:** AegisWAF is an inline, zero-trust runtime security proxy and policy gateway positioned between autonomous AI agents and enterprise APIs/databases. It deterministically intercepts every tool invocation across a sub-10ms **7-Layer Policy Pipeline**—neutralizing prompt injections, preventing BOLA cross-tenant data leaks, throttling runaway agent loops, and routing high-risk financial operations into an asynchronous **Human-in-the-Loop (HITL)** compliance queue with cryptographic auditability.
 
 ---
 
-## 🔗 Live Production Deployment Links
+## 🎯 1. Problem Statement (PS-5.1) & Challenge Context
 
-| Resource | Direct Link | Purpose |
+Autonomous AI agents equipped with function-calling tools interact directly with sensitive production backends (executing SQL queries, reading customer PII, transferring funds, modifying records). 
+
+However, LLM reasoning is non-deterministic and vulnerable to prompt injection, jailbreaks, and hallucinations. **Allowing an AI agent to execute tools without an independent, deterministic security proxy creates catastrophic corporate risk.**
+
+### Why Existing AI Agents Are Dangerous
+
+| Critical Threat | OWASP LLM Ref | Real-World Attack Vector | AegisWAF Defense |
+|---|---|---|---|
+| **Prompt Injection** | LLM01 | Adversary tricks agent into executing `DROP TABLE` or reverse shells | **Layer 3:** Parameter Threat Guard (Regex AST parser) |
+| **BOLA Cross-Tenant Leak** | LLM02 / API1 | Agent in session `C101` coerced into querying confidential `C999` data | **Layer 4:** Data Scope & Tenant Isolation Boundary |
+| **Volumetric Rate Abuse** | LLM04 | Infinite loop or denial-of-wallet spamming expensive upstream APIs | **Layer 2:** Atomic Redis Sliding-Window Rate Limiter |
+| **Out-of-Order Execution** | State Flow | Agent attempts `delete_customer` without prior `get_customer` verification | **Layer 5:** Sequence State Graph Machine in Redis |
+| **Catastrophic Actions** | Governance | Autonomous wire transfers over critical monetary thresholds | **Layer 7:** Asynchronous Human-in-the-Loop Gate |
+| **Missing Audit Trail** | Compliance | Unverifiable AI actions without cryptographic non-repudiation | **Immutable Audit Service:** SHA-256 logged to PostgreSQL |
+
+---
+
+## 💡 2. Solution Overview: The Zero-Trust Interceptor
+
+Instead of trusting the AI Agent's decisions, AegisWAF acts as an inline **Zero-Trust Runtime Gate**:
+
+```text
+  [ End-User / Attacker ]
+            │
+            ▼
+   [ 🤖 Autonomous AI Agent ] (Reasoning & Tool Selection)
+            │
+            ▼ (POST /api/waf/evaluate)
+ ╔═════════════════════════════════════════════════════════════════════════════╗
+ ║                         🛡️ AEGIS WAF (7-LAYER GATE)                         ║
+ ║   Auth Nonce ➔ Rate Limit ➔ Threat Guard ➔ BOLA ➔ Sequence ➔ Risk ➔ HITL   ║
+ ╚═════════════════════════════════════════════════════════════════════════════╝
+            │                                             │
+            ▼ (ALLOW)                                     ▼ (HITL HOLD)
+  [ 🗄️ Enterprise DB / APIs ]                   [ ⚠ Compliance Officer Queue ]
+```
+
+---
+
+## ⚡ 3. Real Enterprise Scenario (The 10-Second Story)
+
+```text
+1. End-User Prompt       ──►  "Transfer ₹25,000 to Acme Corp"
+                                       │
+2. Autonomous Agent      ──►  Selects tool: transfer_money({ to: "Acme Corp", amount: 25000 })
+                                       │
+3. AegisWAF Intercepts   ──►  Evaluates 7 Layers (Auth ✅, Rate Limit ✅, Parameters ✅, BOLA ✅)
+                                       │
+4. Risk Engine Score     ──►  Calculates Composite Risk: 85 / 100 (HIGH RISK)
+                                       │
+5. Governance Gate       ──►  Decision: HITL REQUIRED ➔ Request held in Compliance Queue
+                                       │
+6. SOC Officer Action    ──►  Security officer inspects live telemetry and clicks [ APPROVE ]
+                                       │
+7. Upstream Execution    ──►  Two-phase execution token granted ➔ Bank API safely invoked!
+```
+
+---
+
+## 🌐 4. Live Production Deployment Links
+
+The entire system is deployed, operational, and live for interactive testing:
+
+| Component | Live URL | Description |
 |---|---|---|
-| 🌐 **Live SOC Dashboard** | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) | Main Security Operations Center UI |
+| 🌐 **Live SOC Dashboard** | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) | Main Security Operations Center Control Plane |
 | 🧪 **AI Agent Interactive Playground** | [https://aegis-dashboard-u2x2.onrender.com/playground](https://aegis-dashboard-u2x2.onrender.com/playground) | Live Natural Language & Tool Interception Testbed |
 | ⚠ **Human-in-the-Loop (HITL) Queue** | [https://aegis-dashboard-u2x2.onrender.com/hitl](https://aegis-dashboard-u2x2.onrender.com/hitl) | Asynchronous Compliance Review Portal |
-| 📋 **Immutable Audit Log** | [https://aegis-dashboard-u2x2.onrender.com/events](https://aegis-dashboard-u2x2.onrender.com/events) | Cryptographic Audit Trail Stream |
+| 📋 **Immutable Audit Log** | [https://aegis-dashboard-u2x2.onrender.com/events](https://aegis-dashboard-u2x2.onrender.com/events) | Real-time Cryptographic Audit Trail Stream |
 | 🤖 **Governed Agents Registry** | [https://aegis-dashboard-u2x2.onrender.com/agents](https://aegis-dashboard-u2x2.onrender.com/agents) | Agent Identity & Threat Risk Scores |
 | 🛡 **Dynamic Policy Engine** | [https://aegis-dashboard-u2x2.onrender.com/policies](https://aegis-dashboard-u2x2.onrender.com/policies) | YAML Rules & Live Policy Simulator |
 | ❤️ **Gateway Health Probe** | [https://aegis-gateway-fhye.onrender.com/health](https://aegis-gateway-fhye.onrender.com/health) | Subsystem Health Check (PostgreSQL + Redis) |
@@ -33,7 +96,7 @@
 
 ---
 
-## 🎬 Project Demo Video & Walkthrough
+## 🎬 5. Project Demo Video & Walkthrough
 
 > 📺 **Video Walkthrough Placeholder**  
 > *A full video demonstration walking through the real-time NLP intent engine, 7-layer defense interception, SQL injection mitigation, BOLA cross-tenant blocking, and HITL compliance resolution will be linked here.*
@@ -50,158 +113,22 @@
 
 ---
 
-## 💻 Complete Technology Stack
+## ✨ 6. Key Features & Innovations
 
-| Layer | Technologies Used | Description |
-|---|---|---|
-| **Frontend Dashboard** | React 18, Vite, TypeScript, TailwindCSS, Lucide Icons, Recharts | High-performance SOC dashboard with responsive mobile drawer navigation and real-time charts |
-| **WAF Runtime Gateway** | Node.js (v20), Fastify, TypeScript, Zod | Low-latency (4–10ms) HTTP/REST API gateway and 7-layer security evaluation engine |
-| **Realtime Telemetry** | WebSocket (`ws`), Server-Sent Events (SSE) | Live streaming event bus broadcasting every interception event to connected SOC clients |
-| **Primary Database** | PostgreSQL 16 (Render Managed), Prisma ORM | Persistent storage for agent identities, tool calls, HITL requests, and audit logs |
-| **Cache & State Engine** | Redis 7 (Upstash Serverless), `ioredis` | Microsecond atomic Lua sliding-window rate limiting, sequence graphs, and anti-replay nonces |
-| **Autonomous AI Agent** | TypeScript, LangChain Function Calling, Rule-based NLP | Autonomous customer support and financial agents executing tools under zero-trust governance |
-| **Containerization** | Docker, Docker Compose, Alpine Linux Multi-stage Builds | Production-hardened lightweight containers with non-root security execution |
-| **Cloud Hosting** | Render (Web Service + Static Site), Upstash Redis | $0 Free-Tier multi-service deployment with continuous Git delivery |
-| **Testing & Verification** | Vitest, TSX, Custom Penetration & Invariant Suites | 100% automated invariant suites and penetration attack resistance test harnesses |
+* **🧠 Real-Time NLP Intent Engine:** Parses natural language prompts in sub-milliseconds without relying on external LLM APIs, extracting agent targets, tools, and JSON parameters.
+* **🛡️ Deterministic 7-Layer Policy Pipeline:** Sub-10ms evaluation of authentication nonces, sliding-window rate limits, parameter exploits, multi-tenant boundaries, sequence state graphs, and composite risk.
+* **🛑 Zero-Day Threat Interception:** Automatic detection of SQLi, RCE, Reverse Shells, Path Traversal, XSS, and Buffer Overflows before upstream execution.
+* **🔒 Strict BOLA (OWASP LLM02) Enforcement:** Hard tenant-session binding preventing unauthorized cross-customer record leakage.
+* **🤝 Human-in-the-Loop (HITL) Governance Gate:** Asynchronous compliance holding queue with atomic Compare-and-Swap (CAS) single-winner locking to eliminate review race conditions.
+* **⚡ Live Real-Time Telemetry:** Bi-directional WebSocket stream (`ws`) broadcasting every evaluated tool call, risk score, and block verdict to connected SOC dashboards.
+* **📜 Immutable Cryptographic Audit Trails:** Full forensic capture stored in PostgreSQL with SHA-256 integrity nonces.
+* **📱 Fully Responsive SOC Dashboard:** Mobile-first architecture with slide-out drawer navigation, compact stat grids, and real-time interactive charts.
 
 ---
 
-## 📑 Table of Contents
+## 📸 7. Visual Proof & Live Production Screenshots
 
-1. [Problem Statement (PS-5.1) & Challenge Context](#-1-problem-statement-ps-51--challenge-context)
-2. [Executive Architecture & System Topology](#-2-executive-architecture--system-topology)
-3. [The 7-Layer Defense Pipeline (In-Depth Technical Breakdown)](#-3-the-7-layer-defense-pipeline-in-depth-technical-breakdown)
-4. [Real-Time NLP Intent Engine](#-4-real-time-nlp-intent-engine)
-5. [Visual Walkthrough & Live Production Screenshots](#-5-visual-walkthrough--live-production-screenshots)
-6. [Monorepo Structure & Microservices](#-6-monorepo-structure--microservices)
-7. [Automated Verification & Penetration Test Evidence](#-7-automated-verification--penetration-test-evidence)
-8. [Enterprise RBAC & Fault Tolerance](#-8-enterprise-rbac--fault-tolerance)
-9. [Local Development & Quickstart](#-9-local-development--quickstart)
-10. [Cloud Production Deployment Architecture](#-10-cloud-production-deployment-architecture)
-
----
-
-## 🎯 1. Problem Statement (PS-5.1) & Challenge Context
-
-### The Vulnerability with Autonomous AI Agents
-Modern Large Language Models (LLMs) are increasingly deployed as autonomous agents equipped with function-calling capabilities (tools) to interact directly with sensitive enterprise backends—such as executing SQL queries, querying customer PII, transferring funds, updating records, or sending emails.
-
-However, LLM agents suffer from critical zero-day vulnerabilities:
-* **Prompt Injections & Jailbreaks (OWASP LLM01):** Adversarial prompts can trick an LLM into selecting destructive tools (e.g., executing `DROP TABLE`, running reverse shells, or issuing high-volume delete requests).
-* **Broken Object Level Authorization / BOLA (OWASP LLM02 / API1):** An authenticated agent operating on behalf of Tenant A (`C101`) can hallucinate or be coerced into querying confidential records belonging to Tenant B (`C999`).
-* **Uncontrolled Rate Limiting & Resource Exhaustion (OWASP LLM04):** Malicious prompts or recursive agent loops can flood upstream APIs with thousands of calls, leading to denial of service or financial drainage.
-* **Lack of State Machine Enforcement:** LLMs lack inherent transactional state awareness and may attempt destructive operations (e.g. `delete_customer` or `transfer_money`) without prerequisite verification steps (e.g. `get_customer`).
-* **Absence of Auditability & Compliance Holds:** Regulated industries require immutable cryptographic audit logs and Human-in-the-Loop (HITL) authorization gates for high-stakes actions.
-
-### The Solution: AegisWAF
-**AegisWAF (PS-5.1)** is an inline, zero-trust runtime security proxy. Positioned strictly between AI Agents and upstream services, every single tool call is intercepted and evaluated across a sub-10ms **7-Layer Policy Pipeline**. Safe requests proceed (`ALLOW`), cyber threats and BOLA attacks are terminated immediately (`BLOCK`), volumetric bursts are throttled (`RATE_LIMIT`), and high-risk operations are held in an asynchronous **Human-in-the-Loop (`HITL`)** review queue.
-
----
-
-## 🏛️ 2. Executive Architecture & System Topology
-
-```
-                              ┌──────────────────────────────────┐
-                              │       END-USER / ATTACKER        │
-                              └─────────────────┬────────────────┘
-                                                │ Natural Language
-                                                ▼
-                              ┌──────────────────────────────────┐
-                              │      🤖 AUTONOMOUS AI AGENT      │
-                              │   Intent Parsing & Tool Call     │
-                              └─────────────────┬────────────────┘
-                                                │ POST /api/waf/evaluate
-                                                ▼
-     ╔═══════════════════════════════════════════════════════════════════════════════╗
-     ║                        🛡️ AEGIS WAF RUNTIME GATEWAY                           ║
-     ║                                                                               ║
-     ║  [Layer 1] Agent Authentication & Anti-Replay Nonce (SHA-256 / UUID)          ║
-     ║  [Layer 2] Redis Sliding-Window Rate Limiter (Atomic Lua Script)              ║
-     ║  [Layer 3] Parameter Threat & PII Guard (Regex Signatures: SQLi, RCE, Path)   ║
-     ║  [Layer 4] BOLA Multi-Tenant Boundary (Session Scope Binding)                 ║
-     ║  [Layer 5] Sequence State Graph (Prerequisite Workflow Graph in Redis)        ║
-     ║  [Layer 6] Weighted Composite Risk Engine (Deterministic 0-100 Scoring)       ║
-     ║  [Layer 7] Human-in-the-Loop (HITL) Governance Gate (Compliance Hold)         ║
-     ╚══════════════════════╦═══════════════════════╦════════════════════════════════╝
-                            ║                       ║
-            ┌───────────────▼──────────┐   ┌────────▼────────────────┐
-            │      🟢 ALLOW            │   │      🟡 HITL QUEUE      │
-            │  Two-Phase Authorized    │   │  Asynchronous Hold      │
-            │  Execution Token         │   │  [APPROVE] / [REJECT]   │
-            └───────────────┬──────────┘   └────────┬────────────────┘
-                            │                       │ (Upon Approval)
-                            └───────────┬───────────┘
-                                        │
-                                        ▼
-                       ┌─────────────────────────────────┐
-                       │  🗄️ UPSTREAM TOOLS & ENTERPRISE  │
-                       │  PostgreSQL CRM / Banking APIs  │
-                       └─────────────────────────────────┘
-```
-
----
-
-## 🛡️ 3. The 7-Layer Defense Pipeline (In-Depth Technical Breakdown)
-
-```
-[Incoming Tool Call] ─► L1: Auth & Nonce ─► L2: Rate Limit ─► L3: Threat Guard ─► L4: BOLA ─► L5: Sequence ─► L6: Risk Engine ─► L7: HITL ─► [Execute]
-```
-
-### 🔹 Layer 1: Agent Authentication & Anti-Replay Nonce
-* **Mechanism:** Validates incoming agent Bearer tokens against SHA-256 hashed secrets in the registry. Each request must contain a unique `requestId` (UUIDv4) that is tracked in Redis with a 24-hour TTL.
-* **Defense:** Prevents unauthorized rogue agents from invoking tools and eliminates Replay Attacks ($409\text{ REPLAY\_ATTACK\_DETECTED}$).
-
-### 🔹 Layer 2: Redis Sliding-Window Rate Limiter
-* **Mechanism:** Executes microsecond-accurate atomic Lua scripts in Redis using a sliding timestamp log ($O(1)$ complexity).
-* **Defense:** Throttles aggressive bursts per agent and per tool sensitivity (e.g., maximum 5 financial wire transfers per hour), returning $429\text{ RATE\_LIMIT}$.
-
-### 🔹 Layer 3: Parameter Threat & PII Guard
-* **Mechanism:** Deep recursive inspection of all JSON payload keys and values against compiled threat signature tables:
-  * **SQL Injection:** `' OR '1'='1`, `UNION SELECT`, `DROP TABLE`, `--`, `;`
-  * **Command Injection / RCE:** `; rm -rf`, `/bin/bash`, `| nc`, `curl | sh`
-  * **Path Traversal:** `../`, `/etc/passwd`, `C:\Windows\System32`
-  * **XSS / HTML Injection:** `<script>`, `onerror=`, `javascript:`
-  * **PII Redaction:** Automatic cryptographic masking of SSN, Credit Cards, and Passwords.
-* **Defense:** Intercepts payload exploits before they ever reach upstream application code.
-
-### 🔹 Layer 4: BOLA / Data Scope & Tenant Isolation
-* **Mechanism:** Extracts authenticated session tenant context (`session.customerId = C101`) and enforces strict invariant bounds across all tool arguments.
-* **Defense:** Blocks OWASP LLM02 Broken Object Level Authorization if an agent in session `C101` attempts to access or mutate records for customer `C999`.
-
-### 🔹 Layer 5: Sequence State Graph
-* **Mechanism:** Stateful graph tracking in Redis verifying that dangerous operations follow mandatory pre-requisites.
-* **Defense:** Disallows `delete_customer` or `transfer_money` without an authenticated and verified `get_customer` lookup within the preceding session window.
-
-### 🔹 Layer 6: Weighted Composite Risk Engine
-* **Mechanism:** Deterministic, multi-variable heuristic risk scoring function ($0–100$):
-  $$\text{Risk} = \text{Base Tool Risk} + \text{Monetary Weight} + \text{Payload Anomaly} + \text{Tenant Violation Penalty} + \text{Sequence Penalty}$$
-* **Thresholds:**
-  * **$0 - 30$:** `LOW RISK` $\rightarrow$ Immediate `ALLOW`
-  * **$31 - 50$:** `ELEVATED` $\rightarrow$ Policy Evaluation
-  * **$51 - 90$:** `HIGH RISK` $\rightarrow$ Escalate to `HITL` Queue
-  * **$91 - 100$:** `CRITICAL THREAT` $\rightarrow$ Immediate `BLOCK`
-
-### 🔹 Layer 7: Human-in-the-Loop (HITL) Governance Gate
-* **Mechanism:** Suspends high-risk actions in PostgreSQL with atomic Compare-and-Swap (CAS) resolution. Security officers review pending calls via WebSocket telemetry and issue signed cryptographic approvals or rejections. Includes automated 60-second expiry sweeps.
-
----
-
-## 🧠 4. Real-Time NLP Intent Engine
-
-AegisWAF includes a sub-millisecond, deterministic **NLP Intent Detection Engine** (`POST /api/system/nlp-parse`). Users can type natural language instructions, and the engine extracts structured tool intent, agent assignments, and parameters without depending on third-party LLM APIs:
-
-```
-"Transfer ₹25,000 to Acme Corp"  ──►  Agent: finance-agent
-                                      Tool: transfer_money
-                                      Parameters: { "to": "Acme Corp", "amount": 25000 }
-                                      Confidence: 97%
-```
-
----
-
-## 📸 5. Visual Walkthrough & Live Production Screenshots
-
-The following live screenshots demonstrate AegisWAF actively running and defending upstream systems on the production Render deployment.
+The following screenshots document AegisWAF actively running and defending upstream systems on the production deployment:
 
 ---
 
@@ -280,47 +207,81 @@ Visual policy manager (`/policies`) rendering active YAML rules, tenant boundary
 
 ---
 
-## 📦 6. Monorepo Structure & Microservices
+## 🏛️ 8. Complete System Architecture
 
 ```text
-PS_5.1_Agent_WAF/
-├── apps/
-│   ├── gateway/                  # 🛡️ Core Fastify + TypeScript WAF Gateway
-│   │   ├── prisma/               # PostgreSQL schema & migrations
-│   │   └── src/
-│   │       ├── audit/            # Cryptographic audit service
-│   │       ├── engine/           # 7-Layer Interceptor & Demo Runner
-│   │       ├── middleware/       # RBAC Auth & Bearer validation
-│   │       ├── observability/    # Prometheus metrics & latency gauges
-│   │       ├── realtime/         # WebSocket event bus (ws)
-│   │       ├── routes/           # /api/waf, /api/hitl, /api/system
-│   │       └── rules/            # Rate limit, BOLA, sequence, params
-│   ├── dashboard/                # 📊 React 18 + Vite + TailwindCSS SOC Portal
-│   │   └── src/
-│   │       ├── components/       # Metric cards, drawer sidebar, badges
-│   │       └── pages/            # Overview, Playground, HITL, Policies, Audit
-│   └── agent/                    # 🤖 Autonomous AI Agent (LangChain / Semantic)
-│       └── src/
-│           ├── simulations/      # Normal & attack simulation scripts
-│           └── tools/            # Enterprise CRM and banking tools
-├── docker/                       # 🐳 Multi-stage Alpine Dockerfiles
-├── docs/                         # 📚 Comprehensive architecture reports & screenshots
-│   ├── screenshots/              # Annotated production test evidence
-│   ├── 7_LAYER_DEFENSE_ARCHITECTURE.md
-│   ├── DEPLOYMENT_GUIDE.md
-│   ├── END_TO_END_MASTER_REPORT.md
-│   └── LIVE_TEST_REPORT.md
-├── infra/                        # ☁️ Cloud Configuration
-├── docker-compose.yml            # 🐳 1-Command local cluster deployment
-├── package.json                  # PNPM Workspace root
-└── render.yaml                   # 🚀 Render cloud infrastructure blueprint
+                              ┌──────────────────────────────────┐
+                              │       END-USER / ATTACKER        │
+                              └─────────────────┬────────────────┘
+                                                │ Natural Language
+                                                ▼
+                              ┌──────────────────────────────────┐
+                              │      🤖 AUTONOMOUS AI AGENT      │
+                              │   Intent Parsing & Tool Call     │
+                              └─────────────────┬────────────────┘
+                                                │ POST /api/waf/evaluate
+                                                ▼
+     ╔═══════════════════════════════════════════════════════════════════════════════╗
+     ║                        🛡️ AEGIS WAF RUNTIME GATEWAY                           ║
+     ║                                                                               ║
+     ║  [Layer 1] Agent Authentication & Anti-Replay Nonce (SHA-256 / UUID)          ║
+     ║  [Layer 2] Redis Sliding-Window Rate Limiter (Atomic Lua Script)              ║
+     ║  [Layer 3] Parameter Threat & PII Guard (Regex Signatures: SQLi, RCE, Path)   ║
+     ║  [Layer 4] BOLA Multi-Tenant Boundary (Session Scope Binding)                 ║
+     ║  [Layer 5] Sequence State Graph (Prerequisite Workflow Graph in Redis)        ║
+     ║  [Layer 6] Weighted Composite Risk Engine (Deterministic 0-100 Scoring)       ║
+     ║  [Layer 7] Human-in-the-Loop (HITL) Governance Gate (Compliance Hold)         ║
+     ╚══════════════════════╦═══════════════════════╦════════════════════════════════╝
+                            ║                       ║
+            ┌───────────────▼──────────┐   ┌────────▼────────────────┐
+            │      🟢 ALLOW            │   │      🟡 HITL QUEUE      │
+            │  Two-Phase Authorized    │   │  Asynchronous Hold      │
+            │  Execution Token         │   │  [APPROVE] / [REJECT]   │
+            └───────────────┬──────────┘   └────────┬────────────────┘
+                            │                       │ (Upon Approval)
+                            └───────────┬───────────┘
+                                        │
+                                        ▼
+                       ┌─────────────────────────────────┐
+                       │  🗄️ UPSTREAM TOOLS & ENTERPRISE  │
+                       │  PostgreSQL CRM / Banking APIs  │
+                       └─────────────────────────────────┘
 ```
 
 ---
 
-## 🧪 7. Automated Verification & Penetration Test Evidence
+## 🛡️ 9. The 7-Layer Defense Pipeline (Deep Dive)
 
-AegisWAF includes automated end-to-end invariant and penetration test suites:
+### 🔹 Layer 1: Agent Authentication & Anti-Replay Nonce
+Validates incoming agent Bearer tokens against SHA-256 hashed secrets. Each request must contain a unique `requestId` (UUIDv4) tracked in Redis with a 24-hour TTL ($409\text{ REPLAY\_ATTACK\_DETECTED}$).
+
+### 🔹 Layer 2: Redis Sliding-Window Rate Limiter
+Executes microsecond-accurate atomic Lua scripts in Redis using a sliding timestamp log ($O(1)$ complexity). Throttles aggressive bursts per agent and per tool sensitivity ($429\text{ RATE\_LIMIT}$).
+
+### 🔹 Layer 3: Parameter Threat & PII Guard
+Deep recursive inspection of all JSON payload keys and values against compiled threat signature tables:
+* **SQL Injection:** `' OR '1'='1`, `UNION SELECT`, `DROP TABLE`, `--`, `;`
+* **Command Injection / RCE:** `; rm -rf`, `/bin/bash`, `| nc`, `curl | sh`
+* **Path Traversal:** `../`, `/etc/passwd`, `C:\Windows\System32`
+* **XSS / HTML Injection:** `<script>`, `onerror=`, `javascript:`
+* **PII Redaction:** Automatic cryptographic masking of SSN, Credit Cards, and Passwords.
+
+### 🔹 Layer 4: BOLA / Data Scope & Tenant Isolation
+Extracts authenticated session tenant context (`session.customerId = C101`) and enforces strict invariant bounds across all tool arguments. Blocks cross-tenant access to `C999` (OWASP LLM02).
+
+### 🔹 Layer 5: Sequence State Graph
+Stateful graph tracking in Redis verifying that dangerous operations follow mandatory pre-requisites. Disallows `delete_customer` or `transfer_money` without an authenticated prior `get_customer` lookup.
+
+### 🔹 Layer 6: Weighted Composite Risk Engine
+Deterministic, multi-variable heuristic risk scoring function ($0–100$):
+$$\text{Risk} = \text{Base Tool Risk} + \text{Monetary Weight} + \text{Payload Anomaly} + \text{Tenant Violation Penalty} + \text{Sequence Penalty}$$
+
+### 🔹 Layer 7: Human-in-the-Loop (HITL) Governance Gate
+Suspends high-risk actions ($51–90$) in PostgreSQL with atomic Compare-and-Swap (CAS) resolution. Security officers review pending calls via WebSocket telemetry and issue signed cryptographic approvals or rejections.
+
+---
+
+## 🧪 10. Automated Verification & Penetration Test Evidence
 
 ### 1. Invariant Defense Suite (`pnpm test:comprehensive`)
 ```text
@@ -360,7 +321,50 @@ FINAL REPORT: 10 DEFENDED | 0 BYPASSED | Total: 10
 
 ---
 
-## 🔐 8. Enterprise RBAC & Fault Tolerance
+## 🧠 11. Real-Time NLP Intent Engine
+
+AegisWAF includes a sub-millisecond, deterministic **NLP Intent Detection Engine** (`POST /api/system/nlp-parse`). Users can type natural language instructions, and the engine extracts structured tool intent, agent assignments, and parameters without depending on third-party LLM APIs:
+
+```
+"Transfer ₹25,000 to Acme Corp"  ──►  Agent: finance-agent
+                                      Tool: transfer_money
+                                      Parameters: { "to": "Acme Corp", "amount": 25000 }
+                                      Confidence: 97%
+```
+
+---
+
+## ☁️ 12. Cloud Production Deployment Architecture
+
+AegisWAF runs entirely on a resilient, distributed $0 free-tier cloud architecture:
+
+```text
+                   [ End-User Browser / Mobile ]
+                                 │
+                                 ▼
+              ┌─────────────────────────────────────┐
+              │  Render Static Web Service (SPA)    │
+              │  React 18 + Vite SOC Dashboard      │
+              │  https://aegis-dashboard-u2x2...   │
+              └──────────────────┬──────────────────┘
+                                 │ HTTP / REST / WebSocket
+                                 ▼
+              ┌─────────────────────────────────────┐
+              │  Render Web Service (Node.js API)   │
+              │  Fastify 7-Layer WAF Gateway Engine │
+              │  https://aegis-gateway-fhye...      │
+              └──────────┬────────────────┬─────────┘
+                         │                │
+           ┌─────────────▼──────┐  ┌──────▼─────────────┐
+           │  Render PostgreSQL │  │   Upstash Redis 7  │
+           │  Audit Logs & HITL │  │   Rate Limit &     │
+           │  Database (v16)    │  │   State Machine    │
+           └────────────────────┘  └────────────────────┘
+```
+
+---
+
+## 🔐 13. Enterprise RBAC & Fault Tolerance
 
 ### Role-Based Access Control (RBAC) Matrix
 
@@ -378,7 +382,60 @@ FINAL REPORT: 10 DEFENDED | 0 BYPASSED | Total: 10
 
 ---
 
-## 💻 9. Local Development & Quickstart
+## 📦 14. Monorepo Structure & Microservices
+
+```text
+PS_5.1_Agent_WAF/
+├── apps/
+│   ├── gateway/                  # 🛡️ Core Fastify + TypeScript WAF Gateway
+│   │   ├── prisma/               # PostgreSQL schema & migrations
+│   │   └── src/
+│   │       ├── audit/            # Cryptographic audit service
+│   │       ├── engine/           # 7-Layer Interceptor & Demo Runner
+│   │       ├── middleware/       # RBAC Auth & Bearer validation
+│   │       ├── observability/    # Prometheus metrics & latency gauges
+│   │       ├── realtime/         # WebSocket event bus (ws)
+│   │       ├── routes/           # /api/waf, /api/hitl, /api/system
+│   │       └── rules/            # Rate limit, BOLA, sequence, params
+│   ├── dashboard/                # 📊 React 18 + Vite + TailwindCSS SOC Portal
+│   │   └── src/
+│   │       ├── components/       # Metric cards, drawer sidebar, badges
+│   │       └── pages/            # Overview, Playground, HITL, Policies, Audit
+│   └── agent/                    # 🤖 Autonomous AI Agent (LangChain / Semantic)
+│       └── src/
+│           ├── simulations/      # Normal & attack simulation scripts
+│           └── tools/            # Enterprise CRM and banking tools
+├── docker/                       # 🐳 Multi-stage Alpine Dockerfiles
+├── docs/                         # 📚 Comprehensive architecture reports & screenshots
+│   ├── screenshots/              # Annotated production test evidence
+│   ├── 7_LAYER_DEFENSE_ARCHITECTURE.md
+│   ├── DEPLOYMENT_GUIDE.md
+│   ├── END_TO_END_MASTER_REPORT.md
+│   └── LIVE_TEST_REPORT.md
+├── docker-compose.yml            # 🐳 1-Command local cluster deployment
+├── package.json                  # PNPM Workspace root
+└── render.yaml                   # 🚀 Render cloud infrastructure blueprint
+```
+
+---
+
+## 💻 15. Complete Technology Stack
+
+| Layer | Technologies Used | Description |
+|---|---|---|
+| **Frontend Dashboard** | React 18, Vite, TypeScript, TailwindCSS, Lucide Icons, Recharts | High-performance SOC dashboard with responsive mobile drawer navigation and real-time charts |
+| **WAF Runtime Gateway** | Node.js (v20), Fastify, TypeScript, Zod | Low-latency (4–10ms) HTTP/REST API gateway and 7-layer security evaluation engine |
+| **Realtime Telemetry** | WebSocket (`ws`), Server-Sent Events (SSE) | Live streaming event bus broadcasting every interception event to connected SOC clients |
+| **Primary Database** | PostgreSQL 16 (Render Managed), Prisma ORM | Persistent storage for agent identities, tool calls, HITL requests, and audit logs |
+| **Cache & State Engine** | Redis 7 (Upstash Serverless), `ioredis` | Microsecond atomic Lua sliding-window rate limiting, sequence graphs, and anti-replay nonces |
+| **Autonomous AI Agent** | TypeScript, LangChain Function Calling, Rule-based NLP | Autonomous customer support and financial agents executing tools under zero-trust governance |
+| **Containerization** | Docker, Docker Compose, Alpine Linux Multi-stage Builds | Production-hardened lightweight containers with non-root security execution |
+| **Cloud Hosting** | Render (Web Service + Static Site), Upstash Redis | $0 Free-Tier multi-service deployment with continuous Git delivery |
+| **Testing & Verification** | Vitest, TSX, Custom Penetration & Invariant Suites | 100% automated invariant suites and penetration attack resistance test harnesses |
+
+---
+
+## 🚀 16. Local Development & Quickstart
 
 ### Prerequisites
 * **Node.js:** `v20.x` or higher
@@ -405,26 +462,11 @@ docker compose up --build -d
 * **WAF Gateway:** `http://localhost:3001`
 * **Autonomous Agent:** `http://localhost:3002`
 
-### Step 4: Run Tests
+### Step 4: Run Automated Tests
 ```bash
 pnpm test:comprehensive
 pnpm test:penetration
 ```
-
----
-
-## ☁️ 10. Cloud Production Deployment Architecture
-
-AegisWAF is deployed with zero hosting costs on Render:
-
-| Service | Component | URL |
-|---|---|---|
-| **Dashboard** | Static Vite SPA | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) |
-| **Gateway** | Node.js Fastify API | [https://aegis-gateway-fhye.onrender.com](https://aegis-gateway-fhye.onrender.com) |
-| **Health Check** | System Probe | [https://aegis-gateway-fhye.onrender.com/health](https://aegis-gateway-fhye.onrender.com/health) |
-| **Metrics** | Prometheus Telemetry | [https://aegis-gateway-fhye.onrender.com/metrics](https://aegis-gateway-fhye.onrender.com/metrics) |
-| **Database** | PostgreSQL 16 | Hosted on Render Managed Database |
-| **Cache & State** | Redis 7 | Hosted on Upstash Redis |
 
 ---
 
