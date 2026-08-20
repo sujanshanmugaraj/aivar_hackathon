@@ -1,33 +1,10 @@
 # 🛡️ AegisWAF (PS-5.1) — Zero-Trust Runtime Control Plane & Policy Guard for Autonomous AI Agents
 
-<div align="center">
-
-[![Production Status](https://img.shields.io/badge/System%20Status-OPERATIONAL-emerald?style=for-the-badge&logo=render)](https://aegis-dashboard-u2x2.onrender.com)
-[![WebSocket](https://img.shields.io/badge/Event%20Stream-LIVE%20WS-indigo?style=for-the-badge&logo=socketdotio)](https://aegis-dashboard-u2x2.onrender.com)
-[![Interception Latency](https://img.shields.io/badge/Median%20Latency-4--10ms-brightgreen?style=for-the-badge&logo=speedtest)](https://aegis-gateway-fhye.onrender.com/health)
-[![Security Layers](https://img.shields.io/badge/Defense%20Pipeline-7%20Layers-blue?style=for-the-badge&logo=shield)](https://aegis-dashboard-u2x2.onrender.com/playground)
-[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
-
-**A high-performance, deterministic 7-Layer Web Application Firewall (WAF) and Governance Control Plane positioned between autonomous AI agents and enterprise databases/APIs.**
-
-[🌐 Live Dashboard](https://aegis-dashboard-u2x2.onrender.com) • [🧪 Interactive Playground](https://aegis-dashboard-u2x2.onrender.com/playground) • [⚠ HITL Queue](https://aegis-dashboard-u2x2.onrender.com/hitl) • [📋 Audit Trail](https://aegis-dashboard-u2x2.onrender.com/events) • [❤️ Health Endpoint](https://aegis-gateway-fhye.onrender.com/health) • [📊 Prometheus Metrics](https://aegis-gateway-fhye.onrender.com/metrics)
-
-</div>
-
+Name : Sujan S
+Roll Number : 22PD35
+Course : MSc Data Science - PSG College of Technology
 ---
 
-## 📑 Table of Contents
-
-1. [Problem Statement (PS-5.1) & Challenge Context](#-1-problem-statement-ps-51--challenge-context)
-2. [Executive Architecture & System Topology](#-2-executive-architecture--system-topology)
-3. [The 7-Layer Defense Pipeline (In-Depth Technical Breakdown)](#-3-the-7-layer-defense-pipeline-in-depth-technical-breakdown)
-4. [Real-Time NLP Intent Engine](#-4-real-time-nlp-intent-engine)
-5. [Visual Walkthrough & Live Production Screenshots](#-5-visual-walkthrough--live-production-screenshots)
-6. [Monorepo Structure & Microservices](#-6-monorepo-structure--microservices)
-7. [Automated Verification & Penetration Test Evidence](#-7-automated-verification--penetration-test-evidence)
-8. [Enterprise RBAC & Fault Tolerance](#-8-enterprise-rbac--fault-tolerance)
-9. [Local Development & Quickstart](#-9-local-development--quickstart)
-10. [Cloud Production Deployment (Render Free-Tier Architecture)](#-10-cloud-production-deployment-render-free-tier-architecture)
 
 ---
 
