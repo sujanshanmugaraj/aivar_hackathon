@@ -13,7 +13,7 @@
 ## 🔗 Live Production Deployment Links
 
 
- **Live SOC Dashboard** | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) 
+##  **Live SOC Dashboard**  [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) 
 
 
 ---
@@ -49,20 +49,7 @@
 | **Cloud Hosting** | Render (Web Service + Static Site), Upstash Redis | $0 Free-Tier multi-service deployment with continuous Git delivery |
 | **Testing & Verification** | Vitest, TSX, Custom Penetration & Invariant Suites | 100% automated invariant suites and penetration attack resistance test harnesses |
 
----
 
-## 📑 Table of Contents
-
-1. [Problem Statement (PS-5.1) & Challenge Context](#-1-problem-statement-ps-51--challenge-context)
-2. [Executive Architecture & System Topology](#-2-executive-architecture--system-topology)
-3. [The 7-Layer Defense Pipeline (In-Depth Technical Breakdown)](#-3-the-7-layer-defense-pipeline-in-depth-technical-breakdown)
-4. [Real-Time NLP Intent Engine](#-4-real-time-nlp-intent-engine)
-5. [Visual Walkthrough & Live Production Screenshots](#-5-visual-walkthrough--live-production-screenshots)
-6. [Monorepo Structure & Microservices](#-6-monorepo-structure--microservices)
-7. [Automated Verification & Penetration Test Evidence](#-7-automated-verification--penetration-test-evidence)
-8. [Enterprise RBAC & Fault Tolerance](#-8-enterprise-rbac--fault-tolerance)
-9. [Local Development & Quickstart](#-9-local-development--quickstart)
-10. [Cloud Production Deployment Architecture](#-10-cloud-production-deployment-architecture)
 
 ---
 
@@ -398,24 +385,4 @@ pnpm test:penetration
 
 ---
 
-## ☁️ 10. Cloud Production Deployment Architecture
 
-AegisWAF is deployed with zero hosting costs on Render:
-
-| Service | Component | URL |
-|---|---|---|
-| **Dashboard** | Static Vite SPA | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) |
-| **Gateway** | Node.js Fastify API | [https://aegis-gateway-fhye.onrender.com](https://aegis-gateway-fhye.onrender.com) |
-| **Health Check** | System Probe | [https://aegis-gateway-fhye.onrender.com/health](https://aegis-gateway-fhye.onrender.com/health) |
-| **Metrics** | Prometheus Telemetry | [https://aegis-gateway-fhye.onrender.com/metrics](https://aegis-gateway-fhye.onrender.com/metrics) |
-| **Database** | PostgreSQL 16 | Hosted on Render Managed Database |
-| **Cache & State** | Redis 7 | Hosted on Upstash Redis |
-
----
-
-<div align="center">
-
-**AegisWAF (PS-5.1) — Aivar AI Agent Security Hackathon**  
-*Deterministic, Zero-Trust Runtime Protection for the Autonomous AI Era.*
-
-</div>
