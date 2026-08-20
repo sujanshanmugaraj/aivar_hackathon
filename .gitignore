@@ -36,3 +36,10 @@ pnpm-debug.log*
 *.sqlite
 *.sqlite-journal
 *.db
+
+# Python
+venv/
+.venv/
+__pycache__/
+*.pyc
+
