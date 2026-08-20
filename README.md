@@ -12,16 +12,9 @@
 
 ## 🔗 Live Production Deployment Links
 
-| Resource | Direct Link | Purpose |
-|---|---|---|
-| 🌐 **Live SOC Dashboard** | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) | Main Security Operations Center UI |
-| 🧪 **AI Agent Interactive Playground** | [https://aegis-dashboard-u2x2.onrender.com/playground](https://aegis-dashboard-u2x2.onrender.com/playground) | Live Natural Language & Tool Interception Testbed |
-| ⚠ **Human-in-the-Loop (HITL) Queue** | [https://aegis-dashboard-u2x2.onrender.com/hitl](https://aegis-dashboard-u2x2.onrender.com/hitl) | Asynchronous Compliance Review Portal |
-| 📋 **Immutable Audit Log** | [https://aegis-dashboard-u2x2.onrender.com/events](https://aegis-dashboard-u2x2.onrender.com/events) | Cryptographic Audit Trail Stream |
-| 🤖 **Governed Agents Registry** | [https://aegis-dashboard-u2x2.onrender.com/agents](https://aegis-dashboard-u2x2.onrender.com/agents) | Agent Identity & Threat Risk Scores |
-| 🛡 **Dynamic Policy Engine** | [https://aegis-dashboard-u2x2.onrender.com/policies](https://aegis-dashboard-u2x2.onrender.com/policies) | YAML Rules & Live Policy Simulator |
-| ❤️ **Gateway Health Probe** | [https://aegis-gateway-fhye.onrender.com/health](https://aegis-gateway-fhye.onrender.com/health) | Subsystem Health Check (PostgreSQL + Redis) |
-| 📊 **Prometheus Metrics Endpoint** | [https://aegis-gateway-fhye.onrender.com/metrics](https://aegis-gateway-fhye.onrender.com/metrics) | Standard P50/P95/P99 Telemetry Gauges |
+
+ **Live SOC Dashboard** | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) 
+
 
 ---
 
