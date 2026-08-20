@@ -105,7 +105,7 @@ Instead of trusting the AI Agent's decisions, AegisWAF acts as an inline **Zero-
 
 ---
 
-## 7. Visual Proof and Live Production Screenshots
+## 7. Live Production Output
 
 The following screenshots document AegisWAF actively running and defending upstream systems on the production deployment:
 
@@ -449,9 +449,3 @@ pnpm test:penetration
 
 ---
 
-<div align="center">
-
-**AegisWAF (PS-5.1) - Aivar AI Agent Security Hackathon**  
-*Deterministic, Zero-Trust Runtime Protection for the Autonomous AI Era.*
-
-</div>
