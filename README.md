@@ -449,9 +449,3 @@ pnpm test:penetration
 
 ---
 
-<div align="center">
-
-**AegisWAF (PS-5.1) - Aivar AI Agent Security Hackathon**  
-*Deterministic, Zero-Trust Runtime Protection for the Autonomous AI Era.*
-
-</div>
