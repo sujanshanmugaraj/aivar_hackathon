@@ -3,9 +3,9 @@
 
 
 ### **Author:** Sujan S  
-**Roll Number:** 22PD35  
-**Course:** MSc Data Science — PSG College of Technology  
-
+### **Roll Number:** 22PD35  
+### **Course:** MSc Data Science — PSG College of Technology  
+ 
 
 
 ---
