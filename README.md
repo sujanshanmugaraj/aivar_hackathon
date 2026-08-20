@@ -7,7 +7,6 @@
 ### **Course:** Integrated M.Sc Data Science — PSG College of Technology  
 
 
-> **Elevator Pitch:** AegisWAF is an inline, zero-trust runtime security proxy and policy gateway positioned between autonomous AI agents and enterprise APIs/databases. It deterministically intercepts every tool invocation across a sub-10ms **7-Layer Policy Pipeline**—neutralizing prompt injections, preventing BOLA cross-tenant data leaks, throttling runaway agent loops, and routing high-risk financial operations into an asynchronous **Human-in-the-Loop (HITL)** compliance queue with cryptographic auditability.
 
 ---
 
