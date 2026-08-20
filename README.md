@@ -5,6 +5,7 @@
 ### **Author:** Sujan S  
 ### **Roll Number:** 22PD35  
 ### **Course:** Integrated M.Sc Data Science — PSG College of Technology  
+https://aegis-dashboard-u2x2.onrender.com
 
 
 
@@ -71,20 +72,9 @@ Instead of trusting the AI Agent's decisions, AegisWAF acts as an inline **Zero-
 
 ---
 
-## 🌐 4. Live Production Deployment Links
+## 🌐 4. Live Production Deployment Link
 
-The entire system is deployed, operational, and live for interactive testing:
-
-| Component | Live URL | Description |
-|---|---|---|
-| 🌐 **Live SOC Dashboard** | [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com) | Main Security Operations Center Control Plane |
-| 🧪 **AI Agent Interactive Playground** | [https://aegis-dashboard-u2x2.onrender.com/playground](https://aegis-dashboard-u2x2.onrender.com/playground) | Live Natural Language & Tool Interception Testbed |
-| ⚠ **Human-in-the-Loop (HITL) Queue** | [https://aegis-dashboard-u2x2.onrender.com/hitl](https://aegis-dashboard-u2x2.onrender.com/hitl) | Asynchronous Compliance Review Portal |
-| 📋 **Immutable Audit Log** | [https://aegis-dashboard-u2x2.onrender.com/events](https://aegis-dashboard-u2x2.onrender.com/events) | Real-time Cryptographic Audit Trail Stream |
-| 🤖 **Governed Agents Registry** | [https://aegis-dashboard-u2x2.onrender.com/agents](https://aegis-dashboard-u2x2.onrender.com/agents) | Agent Identity & Threat Risk Scores |
-| 🛡 **Dynamic Policy Engine** | [https://aegis-dashboard-u2x2.onrender.com/policies](https://aegis-dashboard-u2x2.onrender.com/policies) | YAML Rules & Live Policy Simulator |
-| ❤️ **Gateway Health Probe** | [https://aegis-gateway-fhye.onrender.com/health](https://aegis-gateway-fhye.onrender.com/health) | Subsystem Health Check (PostgreSQL + Redis) |
-| 📊 **Prometheus Metrics Endpoint** | [https://aegis-gateway-fhye.onrender.com/metrics](https://aegis-gateway-fhye.onrender.com/metrics) | Standard P50/P95/P99 Telemetry Gauges |
+ **Live SOC Dashboard**  [https://aegis-dashboard-u2x2.onrender.com](https://aegis-dashboard-u2x2.onrender.com)
 
 ---
 
@@ -170,7 +160,7 @@ As the end-user types natural language prompts, the NLP engine runs debounced re
 
 ---
 
-### 7. Scenario 4b — High-Risk Financial Wire Transfer (`HITL Pending`)
+### 7. Scenario 4a — High-Risk Financial Wire Transfer (`HITL Pending`)
 * **Input:** High-value wire transfer request  
 * **Verdict:** `HITL` (Risk: **85/100**). High monetary value escalates the action to compliance review. The interface presents interactive **[APPROVE]** and **[REJECT]** buttons for authorized compliance officers.
 
