@@ -6,14 +6,6 @@
 **Roll Number:** 22PD35  
 **Course:** MSc Data Science — PSG College of Technology  
 
-[![Production Status](https://img.shields.io/badge/System%20Status-OPERATIONAL-emerald?style=for-the-badge&logo=render)](https://aegis-dashboard-u2x2.onrender.com)
-[![WebSocket](https://img.shields.io/badge/Event%20Stream-LIVE%20WS-indigo?style=for-the-badge&logo=socketdotio)](https://aegis-dashboard-u2x2.onrender.com)
-[![Interception Latency](https://img.shields.io/badge/Median%20Latency-4--10ms-brightgreen?style=for-the-badge&logo=speedtest)](https://aegis-gateway-fhye.onrender.com/health)
-[![Security Layers](https://img.shields.io/badge/Defense%20Pipeline-7%20Layers-blue?style=for-the-badge&logo=shield)](https://aegis-dashboard-u2x2.onrender.com/playground)
-[![License](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](LICENSE)
-
-**A high-performance, deterministic 7-Layer Web Application Firewall (WAF) and Governance Control Plane positioned between autonomous AI agents and enterprise databases/APIs.**
-
 </div>
 
 ---
