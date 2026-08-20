@@ -105,7 +105,7 @@ Instead of trusting the AI Agent's decisions, AegisWAF acts as an inline **Zero-
 
 ---
 
-## 7. Visual Proof and Live Production Screenshots
+## 7. Live Production Output
 
 The following screenshots document AegisWAF actively running and defending upstream systems on the production deployment:
 
