@@ -80,16 +80,7 @@ Instead of trusting the AI Agent's decisions, AegisWAF acts as an inline **Zero-
 > **Video Walkthrough Placeholder**  
 > *A full video demonstration walking through the real-time NLP intent engine, 7-layer defense interception, SQL injection mitigation, BOLA cross-tenant blocking, and HITL compliance resolution will be linked here.*
 
-```text
-┌────────────────────────────────────────────────────────────────────────────────────────┐
-│                                                                                        │
-│                                DEMO VIDEO PLAYBACK                                     │
-│                                                                                        │
-│                  [ https://www.youtube.com/watch?v=YOUR_DEMO_VIDEO_ID ]                │
-│                                                                                        │
-└────────────────────────────────────────────────────────────────────────────────────────┘
-```
-
+https://drive.google.com/file/d/1v5e5LMcJ0UiicwjQASzT9Ih0zCV5WxEs/view?usp=sharing
 ---
 
 ## 6. Key Features and Innovations
